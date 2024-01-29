@@ -1,11 +1,10 @@
 import logging
 import os
 import sys
-import json
 
 import uvicorn
 
-from core.asgi import ASGIApplication
+from core.asgi import ASGIApplication, JSONResponse
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,7 +13,8 @@ app = ASGIApplication()
 
 @app.post('/webhook')
 async def init(request):
-    return json.dumps({"message": "Hello, world"}, indent=2).encode('utf-8')
+    # print(request)
+    return JSONResponse(data=request, code=200)
 
 
 def run_server(host, port):
@@ -35,4 +35,4 @@ if __name__ == '__main__':
             logging.StreamHandler(sys.stdout)
         ]
     )
-    run_server('127.0.0.1', int(sys.argv[1]))
+    run_server('127.0.0.1', 8000)

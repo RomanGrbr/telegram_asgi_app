@@ -1,3 +1,6 @@
+import json
+
+
 class ASGIApplication:
     post_urls = dict()
 
@@ -12,38 +15,47 @@ class ASGIApplication:
         """
         Handles the ASGI request. Called via the __call__ method.
         """
+        response = await receive()
+        response = json.loads(response['body'].decode('utf-8'))
         if scope['method'] == 'POST':
             if scope['path'] in self.post_urls:
-                await send({
-                    "type": "http.response.start",
-                    "status": 200,
-                    "headers": [
-                        [b"content-type", b"text/plain"],
-                    ],
-                })
-                await send({
-                    "type": "http.response.body",
-                    "body": await self.post_urls[scope['path']](receive),
-                })
+                body = await self.post_urls[scope['path']](response)
+                data, code = await body()
+                await self.request(send, data, code)
             else:
-                await send({
-                    "type": "http.response.start",
-                    "status": 404,
-                    "headers": [
-                        [b"content-type", b"text/plain"],
-                    ],
-                })
+                await self.request(send, code=404)
         else:
-            await send({
-                "type": "http.response.start",
-                "status": 405,
-                "headers": [
-                    [b"content-type", b"text/plain"],
-                ],
-            })
+            await self.request(send, code=405)
 
-    def post(self, url):
+    @staticmethod
+    async def request(send, code: int, data: str = b''):
+        """Calls the send function with the received code and data"""
+        await send({
+            "type": "http.response.start",
+            "status": code,
+            "headers": [
+                [b"content-type", b"text/plain"],
+            ],
+        })
+        await send({
+            "type": "http.response.body",
+            "body": data,
+        })
+
+    def post(self, url: str):
         """Add addresses for post requests"""
         def _wrapper(function):
             self.post_urls[url] = function
         return _wrapper
+
+
+class JSONResponse:
+    """Serialize dict to bite string"""
+
+    def __init__(self, data: dict, code: int = None):
+        self.data = data
+        self.code = 200 if data and not code else code
+
+    async def __call__(self):
+        assert type(self.code) == int
+        return self.code, json.dumps(self.data, indent=2).encode('utf-8')
