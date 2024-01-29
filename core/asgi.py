@@ -1,8 +1,14 @@
 import json
 
+from core.bot import Bot
+from core.settings import BOT_TOKEN
+
+# print(BOT_TOKEN)
+
 
 class ASGIApplication:
     post_urls = dict()
+    bot = Bot()
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
@@ -19,7 +25,7 @@ class ASGIApplication:
         response = json.loads(response['body'].decode('utf-8'))
         if scope['method'] == 'POST':
             if scope['path'] in self.post_urls:
-                body = await self.post_urls[scope['path']](response)
+                body = await self.post_urls[scope['path']](self.bot.get_response(response))
                 data, code = await body()
                 await self.request(send, data, code)
             else:
@@ -27,14 +33,14 @@ class ASGIApplication:
         else:
             await self.request(send, code=405)
 
-    @staticmethod
-    async def request(send, code: int, data: str = b''):
+    async def request(self, send, code: int, data: str = b''):
         """Calls the send function with the received code and data"""
         await send({
             "type": "http.response.start",
             "status": code,
             "headers": [
-                [b"content-type", b"text/plain"],
+                # [b"content-type", b"text/plain"],
+                [b"content-type", b"application/json"],
             ],
         })
         await send({
@@ -52,10 +58,10 @@ class ASGIApplication:
 class JSONResponse:
     """Serialize dict to bite string"""
 
-    def __init__(self, data: dict, code: int = None):
-        self.data = data
-        self.code = 200 if data and not code else code
+    def __init__(self, content: dict, code: int = None):
+        self.content = content
+        self.code = 200 if content and not code else code
 
     async def __call__(self):
         assert type(self.code) == int
-        return self.code, json.dumps(self.data, indent=2).encode('utf-8')
+        return self.code, json.dumps(self.content, indent=2).encode('utf-8')
