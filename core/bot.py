@@ -1,25 +1,32 @@
-import json
-
 import httpx
 
 from core.settings import BOT_TOKEN
+from core.constants import TELEGRAM_API
 
 
 class Bot:
-    token: str = BOT_TOKEN
-    #
-    # def __init__(self, response: json = None):
-    #     self.response = response
 
-    @classmethod
-    async def set_webhook(cls, url):
+    def __init__(self):
+        self.token: str = BOT_TOKEN
+
+    async def set_webhook(self, url):
         httpx.post(
-            f'https://api.telegram.org/bot{cls.token}/setWebhook?url={url}'
+            f'{TELEGRAM_API}/bot{self.token}/setWebhook?url={url}'
         )
 
-    async def get_response(self, response):
-        request = {
-            'update_id': response.get('update_id'),
-            'message': response.get('message'),
-        }
-        return request
+    async def send_message(self, message, chat_id):
+        httpx.get(
+            f'{TELEGRAM_API}/bot{self.token}/sendMessage?chat_id={chat_id}&text={message}'
+        )
+
+
+class Update:
+
+    def __init__(self, request, bot):
+        self.request = request
+        self.bot = bot
+
+    def message(self):
+        return self.request.get('message').get('message_id')
+
+

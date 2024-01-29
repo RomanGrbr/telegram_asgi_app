@@ -1,2 +1,5 @@
 TELEGRAM_API = 'https://api.telegram.org'
-SET_WEBHOOK = '/url='
+SET_WEBHOOK = '/setWebhook?url='
+SEND_MESSAGE = '/sendMessage?chat_id='
+TEXT = '&text='
+BOT = '/bot'
