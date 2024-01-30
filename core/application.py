@@ -1,7 +1,7 @@
 import json
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 
 @dataclass
@@ -68,11 +68,11 @@ class ASGIApplication:
 class JSONResponse:
     """Serialize dict to bite string"""
     content: dict
-    code: int = None
+    code: int = 200
 
-    def __post_init__(self):
-        if self.content and not self.code:
-            self.code = 200
+    # def __post_init__(self):
+    #     if self.content and not self.code:
+    #         self.code = 200
 
     async def __call__(self) -> tuple[int | None, bytes]:
         assert type(self.code) is int
@@ -82,7 +82,7 @@ class JSONResponse:
 @dataclass
 class Request:
     """Serialize from bite string to dict"""
-    request: Callable[[], Coroutine]
+    request: Callable[[], Any]
 
     async def __call__(self) -> bytes:
         response = await self.request()
