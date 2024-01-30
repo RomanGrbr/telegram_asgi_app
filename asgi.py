@@ -7,7 +7,7 @@ import uvicorn
 from pyngrok import ngrok
 
 from core.application import ASGIApplication, JSONResponse
-from core.bot import Bot
+from core.bot import Bot, Update
 from core.settings import HOST, NGROK_TOKEN, PORT
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,10 +27,11 @@ bot = Bot()
 
 @app.post('/webhook')
 async def init(request):
-    chat_id = request['message']['chat']['id']
-    name = request['message']['from']['first_name']
+    update = Update(request=request, bot=bot)
+    name = update.message.mess_from.first_name
+    chat_id = update.message.chat.id
     print(f'Hello, {name}, send message to: {chat_id}')
-    # await bot.send_message(message=f'Hello, {name}', chat_id=chat_id)
+    # await update.bot.send_message(message=f'Hello, {name}', chat_id=chat_id)
     return JSONResponse(content={'status': 'ok'}, code=200)
 
 
