@@ -1,10 +1,12 @@
 import json
 from collections.abc import Callable, Coroutine
+from dataclasses import dataclass, field
 from typing import Any
 
 
+@dataclass
 class ASGIApplication:
-    post_urls = dict()
+    post_urls: dict = field(default_factory=dict)
 
     async def __call__(
             self,
@@ -62,23 +64,25 @@ class ASGIApplication:
         return _wrapper
 
 
+@dataclass
 class JSONResponse:
     """Serialize dict to bite string"""
+    content: dict
+    code: int = None
 
-    def __init__(self, content: dict, code: int = None) -> None:
-        self.content = content
-        self.code = 200 if content and not code else code
+    def __post_init__(self):
+        if self.content and not self.code:
+            self.code = 200
 
     async def __call__(self) -> tuple[int | None, bytes]:
         assert type(self.code) is int
         return self.code, json.dumps(self.content, indent=2).encode('utf-8')
 
 
+@dataclass
 class Request:
     """Serialize from bite string to dict"""
-
-    def __init__(self, request):
-        self.request = request
+    request: Callable[[], Coroutine]
 
     async def __call__(self) -> bytes:
         response = await self.request()
