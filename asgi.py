@@ -8,8 +8,9 @@ from pyngrok import ngrok
 
 from core.application import ASGIApplication, JSONResponse
 from core.bot import Bot
-from core.updater import Update, CommandHandler
+from core.updater import Update
 from core.settings import HOST, NGROK_TOKEN, PORT
+from core.handlers.dispatcher import setup_dispatcher
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,16 +27,10 @@ app = ASGIApplication()
 bot = Bot()
 
 
-
-async def start(update, context):
-    print('Hello, command start')
-
-
 @app.post('/webhook')
 async def init(request):
     update = Update(request=request, bot=bot)
-    start_handler = CommandHandler('/start', start)
-    await update.add_handler(start_handler)
+    await setup_dispatcher(update)
     await update.run_handlers()
 
     # await update.reply_text(text=f'Hello, {name}', chat_id=chat_id)

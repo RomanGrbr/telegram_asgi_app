@@ -22,7 +22,7 @@ class Update:
     async def run_handlers(self):
         if self.data.message.text in self.handlers:
             func = self.handlers[self.data.message.text]
-            await func('hehe', 'hoho')
+            await func(self.data, {'context': None})
 
     async def reply_text(
             self,
