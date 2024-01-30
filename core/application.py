@@ -65,14 +65,19 @@ class ASGIApplication:
 
 
 @dataclass
+class Response:
+    """Serialize dict to bite string"""
+    content: dict
+
+    async def __call__(self) -> bytes:
+        return json.dumps(self.content, indent=2).encode('utf-8')
+
+
+@dataclass
 class JSONResponse:
     """Serialize dict to bite string"""
     content: dict
     code: int = 200
-
-    # def __post_init__(self):
-    #     if self.content and not self.code:
-    #         self.code = 200
 
     async def __call__(self) -> tuple[int | None, bytes]:
         assert type(self.code) is int

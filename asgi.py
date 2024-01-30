@@ -46,12 +46,17 @@ def run_server(host, port):
         reload=True)
 
 
-async def main():
-    # ngrok.set_auth_token(NGROK_TOKEN)
-    # public_url = ngrok.connect(PORT, bind_tls=True).public_url
-    # print(f'SET PUBLIC URL: {public_url}/webhook')
-    # await bot.set_webhook(f'{public_url}/webhook')
-    run_server(HOST, PORT)
+# async def main():
+#     ngrok.set_auth_token(NGROK_TOKEN)
+#     public_url = ngrok.connect(PORT, bind_tls=True).public_url
+#     print(f'SET PUBLIC URL: {public_url}/webhook')
+#     await bot.set_webhook(f'{public_url}/webhook')
+#     run_server(HOST, PORT)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    ngrok.set_auth_token(NGROK_TOKEN)
+    public_url = ngrok.connect(PORT, bind_tls=True).public_url
+    print(f'SET PUBLIC URL: {public_url}/webhook')
+    bot.set_webhook(f'{public_url}/webhook')
+    run_server(HOST, PORT)
+    # asyncio.run(main())

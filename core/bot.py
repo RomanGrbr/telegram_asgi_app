@@ -11,11 +11,11 @@ from core.settings import BOT_TOKEN
 class Bot:
     token: str = BOT_TOKEN
 
-    async def set_webhook(self, url: str) -> None:
+    def set_webhook(self, url: str) -> None:
         response = httpx.post(
             f'{TELEGRAM_API}/bot{self.token}/setWebhook?url={url}'
         )
-        print(response)  # Возможно использовать для отладки или уведомления
+        # print(response)  # Возможно использовать для отладки или уведомления
 
     async def send_message(
             self, text: str, chat_id: int,
@@ -24,13 +24,16 @@ class Bot:
             reply_to_message_id: Optional[int] = '',
             reply_markup: str = '',
     ):
+        # request = (f'{TELEGRAM_API}/bot{self.token}'
+        #            f'/sendMessage?chat_id={chat_id}'
+        #            f'&text={text}'
+        #            f'&parse_mode={parse_mode}'
+        #            f'&disable_web_page_preview={disable_web_page_preview}'
+        #            f'&reply_to_message_id={reply_to_message_id}'
+        #            f'&reply_markup={reply_markup}')
         request = (f'{TELEGRAM_API}/bot{self.token}'
                    f'/sendMessage?chat_id={chat_id}'
-                   f'&text={text}'
-                   f'&parse_mode={parse_mode}'
-                   f'&disable_web_page_preview={disable_web_page_preview}'
-                   f'&reply_to_message_id={reply_to_message_id}'
-                   f'&reply_markup={reply_markup}')
+                   f'&text={text}')
         httpx.get(request)
 
     async def send_contact(self):...
