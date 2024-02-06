@@ -5,9 +5,9 @@ import httpx
 
 from core.constants import TELEGRAM_API
 from core.settings import BOT_TOKEN
+from core.message_type import Message, PhotoMessage, IlineKeyboardMessage
 
-
-@dataclass(slots=True)
+# @dataclass(slots=True)
 class Bot:
     token: str = BOT_TOKEN
 
@@ -46,3 +46,22 @@ class Bot:
         httpx.get(
             f'{TELEGRAM_API}/bot{self.token}/getFile?file_id={file_id}'
         )
+
+
+class BotBilder:
+    handlers: dict = dict()
+    bot = Bot()
+
+    def add_handler(self, handler):
+        handler = handler()
+        for key, value in handler.items():
+            self.handlers[key] = value
+
+    async def updater(self, update):
+        if isinstance(update.message, IlineKeyboardMessage):
+            pass
+        if isinstance(update.message, Message):
+            if update.message.text in self.handlers:
+                func = self.handlers[update.message.text]
+                await func(update, {'context': None})
+

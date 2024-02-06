@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import os
 import sys
@@ -7,7 +6,7 @@ import uvicorn
 from pyngrok import ngrok
 
 from core.application import ASGIApplication, JSONResponse
-from core.bot import Bot
+from core.bot import BotBilder
 from core.updater import Update
 from core.settings import HOST, NGROK_TOKEN, PORT
 from core.handlers.dispatcher import setup_dispatcher
@@ -24,17 +23,16 @@ logging.basicConfig(
     )
 
 app = ASGIApplication()
-bot = Bot()
+app_bot = BotBilder()
 
 
 @app.post('/webhook')
 async def init(request):
-    update = Update(request=request, bot=bot)
-    await setup_dispatcher(update)
-    await update.run_handlers()
-
-    # await update.reply_text(text=f'Hello, {name}', chat_id=chat_id)
+    update = Update(request=request, bot=app_bot.bot)
+    await app_bot.updater(update)
     return JSONResponse(content={'status': 'ok'}, code=200)
+
+setup_dispatcher(app_bot)
 
 
 def run_server(host, port):
@@ -46,17 +44,9 @@ def run_server(host, port):
         reload=True)
 
 
-# async def main():
-#     ngrok.set_auth_token(NGROK_TOKEN)
-#     public_url = ngrok.connect(PORT, bind_tls=True).public_url
-#     print(f'SET PUBLIC URL: {public_url}/webhook')
-#     await bot.set_webhook(f'{public_url}/webhook')
-#     run_server(HOST, PORT)
-
 if __name__ == '__main__':
-    ngrok.set_auth_token(NGROK_TOKEN)
-    public_url = ngrok.connect(PORT, bind_tls=True).public_url
-    print(f'SET PUBLIC URL: {public_url}/webhook')
-    bot.set_webhook(f'{public_url}/webhook')
+    # ngrok.set_auth_token(NGROK_TOKEN)
+    # public_url = ngrok.connect(PORT, bind_tls=True).public_url
+    # print(f'SET PUBLIC URL: {public_url}/webhook')
+    # app_bot.set_webhook(f'{public_url}/webhook')
     run_server(HOST, PORT)
-    # asyncio.run(main())

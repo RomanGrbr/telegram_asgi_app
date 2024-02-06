@@ -126,6 +126,15 @@ class Contact:
         self.vcard: str = data.get('vcard')
 
 
+class Entities:
+    __slots__ = 'offset', 'length', 'type'
+
+    def __init__(self, data) -> None:
+        self.offset: int = data.get('offset')
+        self.length: int = data.get('length')
+        self.type: str = data.get('type')
+
+
 class BaseMessage:
     """Class for message.
     Get dict, return attr.
@@ -208,8 +217,24 @@ class AudioMessage(BaseMessage):
 class ReplyKeyboard(Message):
     pass
 
-# class CallbackQuery:
-#     __slots__ = 'id'
-#
-#     def __init__(self, callback_query: dict) -> None:
-#         self.id = callback_query.get('id')
+
+class CallbackQuery(Message):
+    __slots__ = 'entities', 'reply_markup'
+
+    def __init__(self, data: dict):
+        super().__init__(data)
+        self.entities: list[Entities] = [
+            Entities(entite) for entite in data.get('entities')
+        ]
+        self.reply_markup = data.get('reply_markup')
+
+
+class IlineKeyboardMessage:
+    __slots__ = 'id', 'mess_from', 'message', 'chat_instance', 'data'
+
+    def __init__(self, data):
+        self.id = data.get('id')
+        self.mess_from: From = From(data.get('from'))
+        self.message = data.get('message')
+        self.chat_instance = data.get('chat_instance')
+        self.data = data.get('data')
