@@ -29,7 +29,7 @@ app_bot = BotBilder()
 @app.post('/webhook')
 async def init(request):
     update = Update(request=request, bot=app_bot.bot)
-    await app_bot.updater(update)
+    await app_bot.updater_v2(update)
     return JSONResponse(content={'status': 'ok'}, code=200)
 
 setup_dispatcher(app_bot)

@@ -7,7 +7,8 @@ from core.constants import TELEGRAM_API
 from core.settings import BOT_TOKEN
 from core.message_type import Message, PhotoMessage, IlineKeyboardMessage
 
-# @dataclass(slots=True)
+
+@dataclass(slots=True)
 class Bot:
     token: str = BOT_TOKEN
 
@@ -50,6 +51,7 @@ class Bot:
 
 class BotBilder:
     handlers: dict = dict()
+    handlers_list = []
     bot = Bot()
 
     def add_handler(self, handler):
@@ -57,11 +59,19 @@ class BotBilder:
         for key, value in handler.items():
             self.handlers[key] = value
 
+    def add_handler_v2(self, handler):
+        self.handlers_list.append(handler)
+
     async def updater(self, update):
         if isinstance(update.message, IlineKeyboardMessage):
             pass
-        if isinstance(update.message, Message):
+        elif isinstance(update.message, Message):
             if update.message.text in self.handlers:
                 func = self.handlers[update.message.text]
                 await func(update, {'context': None})
 
+    async def updater_v2(self, update):
+        for handler in self.handlers_list:
+            # print(handler.is_callback(update))
+            if handler.is_callback(update):
+                await handler.get_callback(update, {'context': None})

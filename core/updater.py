@@ -17,11 +17,12 @@ class Update:
     def __init__(self, request: dict, bot: Bot) -> None:
         self.bot = bot
         self.update_id: int = request.get('update_id')
-        self.message = self.get_type_message(request)
+        self.message = self.pars_message(request)
 
-    def get_type_message(self, request):
+    def pars_message(self, request):
         if request.get('callback_query'):
-            return message_type.IlineKeyboardMessage(request.get('callback_query'))
+            return message_type.IlineKeyboardMessage(
+                request.get('callback_query'))
         for key, value in self.MESSAGE_TYPE.items():
             if key in request.get('message'):
                 return value(request.get('message'))
@@ -46,10 +47,39 @@ class Update:
     #     )
 
 
-class CommandHandler:
-    def __init__(self, command: str, func):
-        self.command = command
-        self.func = func
+class Handler:
+    # __slots__ = 'command', 'callback'
+    command = None
 
+    def __init__(self, command: str, callback):
+        self._add_command(command)
+        self.callback = callback
+
+    @classmethod
+    def is_callback(cls, update):
+        # print(update.message.text)
+        if update.message.text == cls.command:
+            return True
+        else:
+            return False
+
+    # @classmethod
+    async def get_callback(self, update, context):
+        await self.callback(update, context)
+
+    @classmethod
+    def _add_command(cls, command):
+        cls.command = command
+
+
+class MessageStrongHandler(Handler):
     def __call__(self, *args, **kwargs):
-        return {self.command: self.func}
+        return {self.command: self.callback}
+
+
+class CommandHandler(Handler):
+    def __call__(self, *args, **kwargs):
+        return {self.get_command(): self.callback}
+
+    def get_command(self):
+        return f'/{self.command}'
