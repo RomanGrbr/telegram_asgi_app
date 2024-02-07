@@ -55,23 +55,9 @@ class BotBilder:
     bot = Bot()
 
     def add_handler(self, handler):
-        handler = handler()
-        for key, value in handler.items():
-            self.handlers[key] = value
-
-    def add_handler_v2(self, handler):
         self.handlers_list.append(handler)
 
     async def updater(self, update):
-        if isinstance(update.message, IlineKeyboardMessage):
-            pass
-        elif isinstance(update.message, Message):
-            if update.message.text in self.handlers:
-                func = self.handlers[update.message.text]
-                await func(update, {'context': None})
-
-    async def updater_v2(self, update):
         for handler in self.handlers_list:
-            # print(handler.is_callback(update))
-            if handler.is_callback(update):
-                await handler.get_callback(update, {'context': None})
+            if handler.respond(update):
+                return await handler.get_callback(update, {'context': None})

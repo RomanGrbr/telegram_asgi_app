@@ -29,19 +29,19 @@ app_bot = BotBilder()
 @app.post('/webhook')
 async def init(request):
     update = Update(request=request, bot=app_bot.bot)
-    await app_bot.updater_v2(update)
+    await app_bot.updater(update)
     return JSONResponse(content={'status': 'ok'}, code=200)
 
 setup_dispatcher(app_bot)
 
 
-def run_server(host, port):
-    uvicorn.run(
-        app='asgi:app',
-        host=host,
-        port=port,
-        log_level='info',
-        reload=True)
+# def run_server(host, port):
+#     uvicorn.run(
+#         app='asgi:app',
+#         host=host,
+#         port=port,
+#         log_level='info',
+#         reload=True)
 
 
 if __name__ == '__main__':
@@ -49,4 +49,6 @@ if __name__ == '__main__':
     # public_url = ngrok.connect(PORT, bind_tls=True).public_url
     # print(f'SET PUBLIC URL: {public_url}/webhook')
     # app_bot.set_webhook(f'{public_url}/webhook')
-    run_server(HOST, PORT)
+    # run_server(HOST, PORT)
+
+    os.system('uvicorn asgi:app --reload')

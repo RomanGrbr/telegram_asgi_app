@@ -1,9 +1,10 @@
-from .start import start_handler
-from .help import help_handler
+from .comands import start_handler, help_handler
+from .messages import strong_message_handler, any_message_handler
 
 
 def setup_dispatcher(dp):
-    # dp.add_handler(start_handler)
-    # dp.add_handler(help_handler)
-    dp.add_handler_v2(start_handler)
+    dp.add_handler(help_handler)
+    dp.add_handler(start_handler)
+    dp.add_handler(strong_message_handler)
+    dp.add_handler(any_message_handler)
     return dp

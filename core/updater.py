@@ -48,38 +48,37 @@ class Update:
 
 
 class Handler:
-    # __slots__ = 'command', 'callback'
-    command = None
 
-    def __init__(self, command: str, callback):
-        self._add_command(command)
+    def __init__(self, callback, command: str = ''):
         self.callback = callback
+        self.command = self._add_command(command)
 
-    @classmethod
-    def is_callback(cls, update):
-        # print(update.message.text)
-        if update.message.text == cls.command:
+    def respond(self, update):
+        return True
+
+    async def get_callback(self, update, context):
+        await self.callback(update, context)
+
+    def _add_command(self, command):
+        return command
+
+
+class MessageAnyHandler(Handler):
+    pass
+
+
+class MessageStrongHandler(Handler):
+
+    def respond(self, update):
+        if update.message.text == self.command:
             return True
         else:
             return False
 
-    # @classmethod
-    async def get_callback(self, update, context):
-        await self.callback(update, context)
 
-    @classmethod
-    def _add_command(cls, command):
-        cls.command = command
+class CommandHandler(MessageStrongHandler):
 
-
-class MessageStrongHandler(Handler):
-    def __call__(self, *args, **kwargs):
-        return {self.command: self.callback}
-
-
-class CommandHandler(Handler):
-    def __call__(self, *args, **kwargs):
-        return {self.get_command(): self.callback}
-
-    def get_command(self):
-        return f'/{self.command}'
+    def _add_command(self, command):
+        if command.startswith('/'):
+            return command
+        return f'/{command}'
