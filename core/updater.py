@@ -1,4 +1,4 @@
-from core import message_type
+from core import parser
 from core.bot import Bot
 
 
@@ -19,15 +19,15 @@ class Update:
         message (class): Экземпляр сообщения соответствующего типа.
 
     """
-    MESSAGE_TYPE: dict[str: message_type.Message] = {
-        'text': message_type.Message,
-        'photo': message_type.PhotoMessage,
-        'document': message_type.DocumentMessage,
-        'voice': message_type.VoiceMessage,
-        'location': message_type.LocationMessage,
-        'poll': message_type.PollMessage,
-        'contact': message_type.ContactMessage,
-        'audio': message_type.AudioMessage,
+    MESSAGE_TYPE: dict[str: parser.Message] = {
+        'text': parser.Message,
+        'photo': parser.PhotoMessage,
+        'document': parser.DocumentMessage,
+        'voice': parser.VoiceMessage,
+        'location': parser.LocationMessage,
+        'poll': parser.PollMessage,
+        'contact': parser.ContactMessage,
+        'audio': parser.AudioMessage,
     }
 
     def __init__(self, request: dict, bot: Bot) -> None:
@@ -38,7 +38,7 @@ class Update:
     def pars_message(self, request: dict):
         """Преобразует сообщение в класс python."""
         if request.get('callback_query'):
-            return message_type.IlineKeyboardMessage(
+            return parser.IlineKeyboardMessage(
                 request.get('callback_query'))
         for key, value in self.MESSAGE_TYPE.items():
             if key in request.get('message'):

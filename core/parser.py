@@ -143,9 +143,7 @@ class Entities:
 
 
 class BaseMessage:
-    """Class for message.
-    Get dict, return attr.
-    """
+    """Базовый класс сообщения из message."""
 
     __slots__ = 'message_id', 'mess_from', 'chat', 'date'
 

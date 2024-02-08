@@ -14,5 +14,5 @@ async def help(update, context):
     print(f'Привет {name}, чат {chat_id}, команда: help')
     # await update.reply_text(text=f'Привет {name}')
 
-help_handler = CommandHandler(command='help', callback=help)
-start_handler = CommandHandler(command='start', callback=start)
+help_handler = CommandHandler(trigger='help', callback=help)
+start_handler = CommandHandler(trigger='start', callback=start)

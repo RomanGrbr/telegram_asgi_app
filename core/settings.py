@@ -20,3 +20,5 @@ HOST = '127.0.0.1' if DEBUG else os.getenv('HOST')
 PORT = 8000 if DEBUG else int(os.getenv('PORT'))
 
 TELEGRAM_TO = os.getenv('TELEGRAM_TO')
+
+TELEGRAM_API = 'https://api.telegram.org'

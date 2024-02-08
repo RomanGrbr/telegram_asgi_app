@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
-from typing import Optional
 
 import httpx
 
-from core.constants import TELEGRAM_API
 from core.handler import Handler
+from core.settings import TELEGRAM_API
 from core.updater import Update
 
 

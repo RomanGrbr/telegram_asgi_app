@@ -14,5 +14,5 @@ async def any_message(update, context):
     print(f'Привет {name}, чат {chat_id}, Перехватываю все подряд')
     # await update.reply_text(text=f'Привет {name}')
 
-strong_message_handler = MessageStrongHandler(command='Точное', callback=strong_message)
+strong_message_handler = MessageStrongHandler(trigger='Точное', callback=strong_message)
 any_message_handler = MessageAnyHandler(callback=any_message)

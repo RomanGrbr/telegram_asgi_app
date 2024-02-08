@@ -1,35 +1,66 @@
 class Handler:
+    """Базовый хендлер.
 
-    def __init__(self, callback, command: str = ''):
+    Вызывает функцию callback если запрос соответствует заданному trigger.
+
+    Methods:
+        respond: Определить соответствует ли запрос trigger, если да то 'True'
+        get_callback: Вызвать заданную функцию в атрибуте 'callback'
+        _add_command: Установить триггер 'trigger' для вызова 'callback'
+
+    Args:
+        callback (def): Функция реагирующая на заданную команду 'trigger'
+        trigger (str): Триггер для вызова функции
+
+    Attributes:
+        callback (def): Функция реагирующая на заданную команду 'trigger'
+        trigger (str): Триггер для вызова функции
+
+    """
+
+    __slots__ = 'callback', 'trigger'
+
+    def __init__(self, callback, trigger: str = '') -> None:
         self.callback = callback
-        self.command = self._add_command(command)
+        self.trigger = self._add_command(trigger)
 
     def respond(self, update):
+        """Проверить соответствует ли запрос триггеру."""
         return True
 
     async def get_callback(self, update, context):
+        """Вызвать назначенную функцию."""
         await self.callback(update, context)
 
-    def _add_command(self, command):
-        return command
+    def _add_command(self, trigger):
+        """Добавить триггер для хендлера."""
+        return trigger
 
 
 class MessageAnyHandler(Handler):
+    """Хендлер для всех типов сообщений."""
     pass
 
 
-class MessageStrongHandler(Handler):
+class MessageLowerHandler(Handler):
+    """Хендлер соответствия сообщению без учета регистра."""
 
     def respond(self, update):
-        if update.message.text == self.command:
-            return True
-        else:
-            return False
+        """Проверить соответствует ли запрос триггеру."""
+        return update.message.text.lower() == self.trigger.lower()
+
+
+class MessageStrongHandler(Handler):
+    """Хендлер строгого соответствия сообщению."""
+
+    def respond(self, update):
+        """Проверить соответствует ли запрос триггеру"""
+        return update.message.text == self.trigger
 
 
 class CommandHandler(MessageStrongHandler):
+    """Хендлер обрабатывающий команды начинающиеся с '/'"""
 
-    def _add_command(self, command):
-        if command.startswith('/'):
-            return command
-        return f'/{command}'
+    def _add_command(self, trigger):
+        """Добавить триггер для хендлера"""
+        return trigger if trigger.startswith('/') else f'/{trigger}'
