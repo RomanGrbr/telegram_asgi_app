@@ -1,3 +1,8 @@
+from collections.abc import Callable
+
+from core.updater import Update
+
+
 class Handler:
     """Базовый хендлер.
 
@@ -20,19 +25,19 @@ class Handler:
 
     __slots__ = 'callback', 'trigger'
 
-    def __init__(self, callback, trigger: str = '') -> None:
+    def __init__(self, callback: Callable, trigger: str = '') -> None:
         self.callback = callback
         self.trigger = self._add_command(trigger)
 
-    def respond(self, update):
+    def respond(self, update: Update) -> bool:
         """Проверить соответствует ли запрос триггеру."""
         return True
 
-    async def get_callback(self, update, context):
+    async def get_callback(self, update: Update, context: dict) -> Callable[...]:
         """Вызвать назначенную функцию."""
         await self.callback(update, context)
 
-    def _add_command(self, trigger):
+    def _add_command(self, trigger: str) -> str:
         """Добавить триггер для хендлера."""
         return trigger
 
@@ -45,7 +50,7 @@ class MessageAnyHandler(Handler):
 class MessageLowerHandler(Handler):
     """Хендлер соответствия сообщению без учета регистра."""
 
-    def respond(self, update):
+    def respond(self, update: Update) -> bool:
         """Проверить соответствует ли запрос триггеру."""
         return update.message.text.lower() == self.trigger.lower()
 
@@ -53,7 +58,7 @@ class MessageLowerHandler(Handler):
 class MessageStrongHandler(Handler):
     """Хендлер строгого соответствия сообщению."""
 
-    def respond(self, update):
+    def respond(self, update: Update) -> bool:
         """Проверить соответствует ли запрос триггеру"""
         return update.message.text == self.trigger
 
@@ -61,6 +66,6 @@ class MessageStrongHandler(Handler):
 class CommandHandler(MessageStrongHandler):
     """Хендлер обрабатывающий команды начинающиеся с '/'"""
 
-    def _add_command(self, trigger):
+    def _add_command(self, trigger: str) -> str:
         """Добавить триггер для хендлера"""
         return trigger if trigger.startswith('/') else f'/{trigger}'

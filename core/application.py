@@ -1,7 +1,7 @@
 import json
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from typing import Any
+# from typing import Any
 
 
 @dataclass
@@ -92,7 +92,7 @@ class ASGIApplication:
             "body": data,
         })
 
-    def post(self, url: str) -> Callable[..., Any]:
+    def post(self, url: str) -> Callable[..., ...]:
         """Добавляет url адреса для обработки POST запросов.
 
         Декоратор с параметром url
@@ -145,7 +145,7 @@ class Request:
         receive: Функция возвращающая строку запроса.
 
     """
-    receive: Callable[[], Any]
+    receive: Callable[[], ...]
 
     async def __call__(self) -> bytes:
         response = await self.receive()
