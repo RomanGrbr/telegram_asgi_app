@@ -8,7 +8,7 @@ from pyngrok import ngrok
 from core.application import ASGIApplication, JSONResponse
 from core.bot import BotBilder
 from core.updater import Update
-from core.settings import HOST, NGROK_TOKEN, PORT
+from core.settings import HOST, NGROK_TOKEN, PORT, BOT_TOKEN
 from core.handlers.dispatcher import setup_dispatcher
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +23,7 @@ logging.basicConfig(
     )
 
 app = ASGIApplication()
-app_bot = BotBilder()
+app_bot = BotBilder(BOT_TOKEN)
 
 
 @app.post('/webhook')

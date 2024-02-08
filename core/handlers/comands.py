@@ -1,4 +1,4 @@
-from core.updater import CommandHandler
+from core.handler import CommandHandler
 
 
 async def start(update, context):

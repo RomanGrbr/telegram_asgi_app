@@ -1,4 +1,4 @@
-from core.updater import MessageStrongHandler, MessageAnyHandler
+from core.handler import MessageAnyHandler, MessageStrongHandler
 
 
 async def strong_message(update, context):

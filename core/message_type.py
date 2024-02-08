@@ -1,6 +1,15 @@
 class BaseFromChat:
-    """Base class for Chat and From.
-    Get dict, return attr.
+    """Базовый класс для ключей from и chat в message.
+
+    Args:
+        data (dict): Словарь полученный из message
+
+    Attributes:
+        id (int): id от кого
+        first_name (str): Имя
+        last_name (str): Фамилия
+        username (str): Имя пользователя, ник
+
     """
 
     __slots__ = 'id', 'first_name', 'last_name', 'username'
@@ -13,31 +22,29 @@ class BaseFromChat:
 
 
 class From(BaseFromChat):
-    """Class for form.
-    Get dict, return attr.
-    """
+    """Ключ from в message."""
 
     __slots__ = 'is_bot', 'language_code'
 
-    def __init__(self, mess_from: dict) -> None:
-        super().__init__(mess_from)
-        self.is_bot: bool = mess_from.get('is_bot')
-        self.language_code: str = mess_from.get('language_code')
+    def __init__(self, data: dict) -> None:
+        super().__init__(data)
+        self.is_bot: bool = data.get('is_bot')
+        self.language_code: str = data.get('language_code')
 
 
 class Chat(BaseFromChat):
-    """Class for chat.
-    Get dict, return attr.
-    """
+    """Ключ chat в message."""
 
     __slots__ = 'type'
 
-    def __init__(self, chat: dict) -> None:
-        super().__init__(chat)
-        self.type: str = chat.get('type')
+    def __init__(self, data: dict) -> None:
+        super().__init__(data)
+        self.type: str = data.get('type')
 
 
 class BaseFile:
+    """Базовый класс сообщений содержащих файлы."""
+
     __slots__ = 'file_id', 'file_unique_id', 'file_size'
 
     def __init__(self, data: dict) -> None:

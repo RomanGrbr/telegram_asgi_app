@@ -3,7 +3,23 @@ from core.bot import Bot
 
 
 class Update:
-    MESSAGE_TYPE = {
+    """Определяет тип полученного сообщения.
+
+    Methods:
+        pars_message: Преобразовать сообщение в экземпляр pyhon
+
+    Args:
+        request (dict): Запрос полученный от asgi.
+        bot (class): Экземпляр бота.
+
+    Attributes:
+        MESSAGE_TYPE (dict): Хранит добавленные обработчики.
+        bot (class): Экземпляр бота.
+        update_id (int): id обновления.
+        message (class): Экземпляр сообщения соответствующего типа.
+
+    """
+    MESSAGE_TYPE: dict[str: message_type.Message] = {
         'text': message_type.Message,
         'photo': message_type.PhotoMessage,
         'document': message_type.DocumentMessage,
@@ -15,11 +31,12 @@ class Update:
     }
 
     def __init__(self, request: dict, bot: Bot) -> None:
-        self.bot = bot
+        self.bot: Bot = bot
         self.update_id: int = request.get('update_id')
         self.message = self.pars_message(request)
 
-    def pars_message(self, request):
+    def pars_message(self, request: dict):
+        """Преобразует сообщение в класс python."""
         if request.get('callback_query'):
             return message_type.IlineKeyboardMessage(
                 request.get('callback_query'))
@@ -45,40 +62,3 @@ class Update:
     #         reply_to_message_id=reply_to_message_id,
     #         reply_markup=reply_markup,
     #     )
-
-
-class Handler:
-
-    def __init__(self, callback, command: str = ''):
-        self.callback = callback
-        self.command = self._add_command(command)
-
-    def respond(self, update):
-        return True
-
-    async def get_callback(self, update, context):
-        await self.callback(update, context)
-
-    def _add_command(self, command):
-        return command
-
-
-class MessageAnyHandler(Handler):
-    pass
-
-
-class MessageStrongHandler(Handler):
-
-    def respond(self, update):
-        if update.message.text == self.command:
-            return True
-        else:
-            return False
-
-
-class CommandHandler(MessageStrongHandler):
-
-    def _add_command(self, command):
-        if command.startswith('/'):
-            return command
-        return f'/{command}'

@@ -1,11 +1,22 @@
 import json
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
 class ASGIApplication:
+    """Приложение реализующее основные методы взаимодействия с ASGI сервером.
+
+    Methods:
+        handle: Обработать запрос от ASGI.
+        request: Отправить ответ используя функцию send.
+        post: Зарегистрировать url адрес для POST запросов.
+
+    Attributes:
+        post_urls (dict): url адреса для обработки POST запросов.
+
+    """
     post_urls: dict = field(default_factory=dict)
 
     async def __call__(
@@ -14,6 +25,17 @@ class ASGIApplication:
             receive: Callable[[], str],
             send: Callable[[dict], Coroutine]
     ) -> None:
+        """Вызывается сервером ASGI.
+
+        Args:
+            scope (dict): Передаваемая в области действия соединения информация
+            receive: Входящий запрос.
+            send: Функция отправки ответа.
+
+        Raises:
+            ValueError: Если тип не соответствует http
+
+        """
         if scope['type'] != 'http':
             raise ValueError(
                 f'Can only handle ASGI/HTTP connections, not {scope["type"]}.'
@@ -27,7 +49,13 @@ class ASGIApplication:
             send: Callable[[dict], Coroutine]
     ) -> None:
         """
-        Handles the ASGI request. Called via the __call__ method.
+        Обрабатывает запрос ASGI. Вызывается с помощью метода __call__.
+
+        Args:
+            scope (dict): Передаваемая в области действия соединения информация
+            receive: Входящий запрос
+            send: Функция отправки ответа.
+
         """
         request = Request(receive)
         if scope['method'] == 'POST':
@@ -44,7 +72,14 @@ class ASGIApplication:
     async def request(
             send: Callable[[dict], Coroutine], code: int, data: bytes = b''
     ) -> None:
-        """Calls the send function with the received code and data"""
+        """Вызывает функцию отправки с полученным кодом и данными.
+
+        Args:
+            send: Функция отправки ответа
+            code (int): HTTP код ответа
+            data (bytes): Строка ответа
+
+        """
         await send({
             "type": "http.response.start",
             "status": code,
@@ -58,15 +93,28 @@ class ASGIApplication:
         })
 
     def post(self, url: str) -> Callable[..., Any]:
-        """Add addresses for post requests"""
+        """Добавляет url адреса для обработки POST запросов.
+
+        Декоратор с параметром url
+
+        Args:
+            url (str): url адрес.
+
+        """
         def _wrapper(func):
+            """Добавляет декарируемую функцию в список обработки url адресов"""
             self.post_urls[url] = func
         return _wrapper
 
 
 @dataclass
 class Response:
-    """Serialize dict to bite string"""
+    """Преобразование словаря в строку байт.
+
+    Args:
+        content (dict): Словарь для преобразования.
+
+    """
     content: dict
 
     async def __call__(self) -> bytes:
@@ -75,7 +123,12 @@ class Response:
 
 @dataclass
 class JSONResponse:
-    """Serialize dict to bite string"""
+    """Преобразование словаря в строку байт.
+
+    Args:
+        content (dict): Словарь для преобразования.
+
+    """
     content: dict
     code: int = 200
 
@@ -86,9 +139,14 @@ class JSONResponse:
 
 @dataclass
 class Request:
-    """Serialize from bite string to dict"""
-    request: Callable[[], Any]
+    """Преобразование строки байт в словарь.
+
+    Args:
+        receive: Функция возвращающая строку запроса.
+
+    """
+    receive: Callable[[], Any]
 
     async def __call__(self) -> bytes:
-        response = await self.request()
+        response = await self.receive()
         return json.loads(response['body'].decode('utf-8'))
