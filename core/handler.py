@@ -5,7 +5,6 @@ import os
 
 from core.updater import Update
 from core.settings import BASE_DIR, MEDIA_ROOT
-from core.errors import UnknownTypeFileError
 
 
 class Handler:
@@ -90,7 +89,20 @@ class CommandHandler(MessageStrongHandler):
 
 
 class FileHandler(Handler):
-    """Хендлер управляющий загрузкой файлов"""
+    """Хендлер обработки файлов.
+
+     Methods:
+        run_upload: Загрузка файла, используя метод get_file экземпляра bot
+
+    Args:
+        path (str): Директория для загрузки файла.
+        receive (bool): Выполнить загрузку.
+
+    Attributes:
+        path (str): Директория для загрузки файла.
+        receive (bool): Выполнить загрузку.
+
+    """
 
     __slots__ = 'path', 'receive'
 
@@ -98,12 +110,12 @@ class FileHandler(Handler):
             self,
             callback: Callable,
             trigger: str = '',
-            path: str | bool = MEDIA_ROOT,
+            path: str = MEDIA_ROOT,
             receive: bool = False
     ) -> None:
         super().__init__(callback, trigger)
-        self.path = os.path.join(BASE_DIR, path)
-        self.receive = receive
+        self.path: str = os.path.join(BASE_DIR, path)
+        self.receive: bool = receive
 
     async def get_callback(self, update: Update, context: dict) -> Any:
         """Вызвать назначенную функцию и загрузить файл."""
@@ -112,7 +124,7 @@ class FileHandler(Handler):
             for file in update.message.files:
                 await self.run_upload(update, file)
 
-    async def run_upload(self, update: Update, file: str):
+    async def run_upload(self, update: Update, file: str) -> None:
         """Загрузить файл."""
         await update.bot.get_file(file, self.path)
 

@@ -152,7 +152,7 @@ class BaseMessage:
         self.mess_from: From = From(message.get('from'))
         self.chat: Chat = Chat(message.get('chat'))
         self.date: int = message.get('date')
-        self.files: list = list()
+        self.files: list[str] = list()
 
 
 class Message(BaseMessage):
@@ -169,7 +169,7 @@ class PhotoMessage(BaseMessage):
     def __init__(self, data: dict) -> None:
         super().__init__(data)
         self.photo: list[Photo] = [Photo(photo) for photo in data.get('photo')]
-        self.files: list = [file.file_id for file in self.photo]
+        self.files: list[str] = [file.file_id for file in self.photo]
 
 
 class DocumentMessage(BaseMessage):
@@ -178,7 +178,7 @@ class DocumentMessage(BaseMessage):
     def __init__(self, data: dict) -> None:
         super().__init__(data)
         self.document: Document = Document(data.get('document'))
-        self.files: list = [self.document.file_id]
+        self.files: list[str] = [self.document.file_id]
 
 
 class VoiceMessage(BaseMessage):
@@ -187,7 +187,7 @@ class VoiceMessage(BaseMessage):
     def __init__(self, data: dict) -> None:
         super().__init__(data)
         self.voice: Voice = Voice(data.get('voice'))
-        self.files: list = [self.voice.file_id]
+        self.files: list[str] = [self.voice.file_id]
 
 
 class LocationMessage(BaseMessage):
