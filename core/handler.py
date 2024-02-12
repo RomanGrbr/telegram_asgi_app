@@ -109,22 +109,12 @@ class FileHandler(Handler):
         """Вызвать назначенную функцию и загрузить файл."""
         await super().callback(update, context)
         if self.receive:
-            if hasattr(update.message, 'photo'):
-                for file in update.message.photo:
-                    await self.run_upload(update, file)
-            elif hasattr(update.message, 'document'):
-                await self.run_upload(update, update.message.document)
-            elif hasattr(update.message, 'voice'):
-                await self.run_upload(update, update.message.document)
-            elif hasattr(update.message, 'audio'):
-                await self.run_upload(update, update.message.document)
-            else:
-                raise UnknownTypeFileError(
-                    'Метод для загрузки данного типа файла не определен')
+            for file in update.message.files:
+                await self.run_upload(update, file)
 
-    async def run_upload(self, update, file):
+    async def run_upload(self, update: Update, file: str):
         """Загрузить файл."""
-        await update.bot.get_file(file.file_id, self.path)
+        await update.bot.get_file(file, self.path)
 
 
 class PhotoHandler(FileHandler):
@@ -135,7 +125,7 @@ class PhotoHandler(FileHandler):
         return hasattr(update.message, 'photo')
 
 
-class DocumentHandler(Handler):
+class DocumentHandler(FileHandler):
     """Хендлер обрабатывающий документы."""
 
     def respond(self, update: Update) -> bool:
@@ -143,7 +133,7 @@ class DocumentHandler(Handler):
         return hasattr(update.message, 'document')
 
 
-class VoiceHandler(Handler):
+class VoiceHandler(FileHandler):
     """Хендлер обрабатывающий аудио сообщения."""
 
     def respond(self, update: Update) -> bool:
@@ -151,7 +141,7 @@ class VoiceHandler(Handler):
         return hasattr(update.message, 'voice')
 
 
-class AudioHandler(Handler):
+class AudioHandler(FileHandler):
     """Хендлер обрабатывающий музыку."""
 
     def respond(self, update: Update) -> bool:
