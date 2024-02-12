@@ -1,8 +1,11 @@
 from collections.abc import Callable
 from typing import Any
 import re
+import os
 
 from core.updater import Update
+from core.settings import BASE_DIR, MEDIA_ROOT
+from core.errors import UnknownTypeFileError
 
 
 class Handler:
@@ -65,15 +68,15 @@ class MessageStrongHandler(MessageAnyHandler):
     """Хендлер строгого соответствия сообщению."""
 
     def respond(self, update: Update) -> bool:
-        """Проверить соответствует ли запрос триггеру"""
+        """Проверить соответствует ли запрос триггеру."""
         return super().respond(update) and update.message.text == self.trigger
 
 
 class MessageRegexHandler(MessageAnyHandler):
-    """Хендлер соответствия сообщению регулярному сообщению."""
+    """Хендлер соответствия сообщения регулярному сообщению."""
 
     def respond(self, update: Update) -> bool:
-        """Проверить соответствует ли запрос регулярному выражению триггера"""
+        """Проверить соответствует ли запрос регулярному выражению триггера."""
         return (super().respond(update) and
                 re.fullmatch(self.trigger, update.message.text))
 
@@ -82,14 +85,99 @@ class CommandHandler(MessageStrongHandler):
     """Хендлер обрабатывающий команды начинающиеся с '/'"""
 
     def _add_command(self, trigger: str) -> str:
-        """Добавить триггер для хендлера"""
+        """Добавить триггер для хендлера."""
         return trigger if trigger.startswith('/') else f'/{trigger}'
 
 
-class PhotoHandler(Handler):
-    """Хендлер управляющий загрузкой файлов."""
+class FileHandler(Handler):
+    """Хендлер управляющий загрузкой файлов"""
+
+    __slots__ = 'path', 'receive'
+
+    def __init__(
+            self,
+            callback: Callable,
+            trigger: str = '',
+            path: str | bool = MEDIA_ROOT,
+            receive: bool = False
+    ) -> None:
+        super().__init__(callback, trigger)
+        self.path = os.path.join(BASE_DIR, path)
+        self.receive = receive
+
+    async def get_callback(self, update: Update, context: dict) -> Any:
+        """Вызвать назначенную функцию и загрузить файл."""
+        await super().callback(update, context)
+        if self.receive:
+            if hasattr(update.message, 'photo'):
+                for file in update.message.photo:
+                    await self.run_upload(update, file)
+            elif hasattr(update.message, 'document'):
+                await self.run_upload(update, update.message.document)
+            elif hasattr(update.message, 'voice'):
+                await self.run_upload(update, update.message.document)
+            elif hasattr(update.message, 'audio'):
+                await self.run_upload(update, update.message.document)
+            else:
+                raise UnknownTypeFileError(
+                    'Метод для загрузки данного типа файла не определен')
+
+    async def run_upload(self, update, file):
+        """Загрузить файл."""
+        await update.bot.get_file(file.file_id, self.path)
+
+
+class PhotoHandler(FileHandler):
+    """Хендлер обрабатывающий фотографии."""
 
     def respond(self, update: Update) -> bool:
-        """Проверить содержит ли запрос фотографии"""
+        """Проверить содержит ли запрос фотографии."""
         return hasattr(update.message, 'photo')
 
+
+class DocumentHandler(Handler):
+    """Хендлер обрабатывающий документы."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить содержит ли запрос документ."""
+        return hasattr(update.message, 'document')
+
+
+class VoiceHandler(Handler):
+    """Хендлер обрабатывающий аудио сообщения."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить содержит ли запрос аудио сообщение."""
+        return hasattr(update.message, 'voice')
+
+
+class AudioHandler(Handler):
+    """Хендлер обрабатывающий музыку."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить содержит ли запрос музыку."""
+        return hasattr(update.message, 'audio')
+
+
+class LocationHandler(Handler):
+    """Хендлер геопозиции."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить содержит ли запрос геопозицию."""
+        return hasattr(update.message, 'location')
+
+
+class ContactHandler(Handler):
+    """Хендлер контактов."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить содержит ли запрос контакт."""
+        return hasattr(update.message, 'contact')
+
+
+class PollHandler(Handler):
+    """Хендлер опросов."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить содержит ли запрос опрос."""
+        return hasattr(update.message, 'poll')

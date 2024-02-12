@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 DEBUG = os.getenv('DEBUG').lower() == 'true'
 
 # Токен от BotFather
@@ -22,3 +24,6 @@ PORT = 8000 if DEBUG else int(os.getenv('PORT'))
 TELEGRAM_TO = os.getenv('TELEGRAM_TO')
 
 TELEGRAM_API = 'https://api.telegram.org'
+
+# The file upload directory
+MEDIA_ROOT = 'media'

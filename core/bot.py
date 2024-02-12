@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import httpx
 
 from core.handler import Handler
-from core.settings import TELEGRAM_API
+from core.settings import TELEGRAM_API, MEDIA_ROOT
 from core.updater import Update
 
 
@@ -75,16 +75,18 @@ class Bot:
 
     # TODO Реализован не полностью. А может перенести в Update?
     #  Добавить обработку ошибок, директорию сохранения и декодирование
-    async def get_file(self, file_id: int):
+    async def get_file(self, file_id: int, media_url: str):
         """Получает файл по его id
 
         Args:
             file_id (int): id файла для загрузки из полученного сообщения.
+            media_url (str): Директория для загрузки файлов.
 
         """
-        httpx.get(
-            f'{TELEGRAM_API}/bot{self.token}/getFile?file_id={file_id}'
-        )
+        print(f'Загрузил файл в директорию {media_url}')
+        # httpx.get(
+        #     f'{TELEGRAM_API}/bot{self.token}/getFile?file_id={file_id}'
+        # )
 
 
 @dataclass

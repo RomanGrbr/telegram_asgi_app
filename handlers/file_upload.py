@@ -2,8 +2,10 @@ from core.handler import PhotoHandler
 
 
 async def get_photo(update, context):
-    print(f'Фотографии: {[photo.file_id for photo in update.message.photo]}')
-    # await update.reply_text(text=f'Привет {name}')
+    files = [photo.file_id for photo in update.message.photo]
+    print(f'Фотографии: {files}')
+    # await update.bot.get_file(files[0])
 
 
-get_photo_handler = PhotoHandler(callback=get_photo)
+get_photo_handler = PhotoHandler(
+    callback=get_photo, receive=True, path='photo')
