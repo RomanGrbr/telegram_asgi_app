@@ -46,31 +46,36 @@ class Handler:
 
 class MessageAnyHandler(Handler):
     """Хендлер для всех типов сообщений."""
-    pass
+
+    def respond(self, update: Update) -> bool:
+        """Проверить соответствует ли запрос триггеру."""
+        return hasattr(update.message, 'text')
 
 
-class MessageLowerHandler(Handler):
+class MessageLowerHandler(MessageAnyHandler):
     """Хендлер соответствия сообщению без учета регистра."""
 
     def respond(self, update: Update) -> bool:
         """Проверить соответствует ли запрос триггеру."""
-        return update.message.text.lower() == self.trigger.lower()
+        return (super().respond(update) and
+                update.message.text.lower() == self.trigger.lower())
 
 
-class MessageStrongHandler(Handler):
+class MessageStrongHandler(MessageAnyHandler):
     """Хендлер строгого соответствия сообщению."""
 
     def respond(self, update: Update) -> bool:
         """Проверить соответствует ли запрос триггеру"""
-        return update.message.text == self.trigger
+        return super().respond(update) and update.message.text == self.trigger
 
 
-class MessageRegexHandler(Handler):
+class MessageRegexHandler(MessageAnyHandler):
     """Хендлер соответствия сообщению регулярному сообщению."""
 
     def respond(self, update: Update) -> bool:
         """Проверить соответствует ли запрос регулярному выражению триггера"""
-        return True if re.fullmatch(self.trigger, update.message.text) else False
+        return (super().respond(update) and
+                re.fullmatch(self.trigger, update.message.text))
 
 
 class CommandHandler(MessageStrongHandler):
@@ -79,3 +84,12 @@ class CommandHandler(MessageStrongHandler):
     def _add_command(self, trigger: str) -> str:
         """Добавить триггер для хендлера"""
         return trigger if trigger.startswith('/') else f'/{trigger}'
+
+
+class PhotoHandler(Handler):
+    """Хендлер управляющий загрузкой файлов."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить содержит ли запрос фотографии"""
+        return hasattr(update.message, 'photo')
+

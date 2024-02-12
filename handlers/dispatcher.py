@@ -1,6 +1,7 @@
 from .comands import help_handler, start_handler
 from .messages import (any_message_handler, strong_message_handler,
                        lower_message_handler, regex_message_handler)
+from .file_upload import get_photo_handler
 
 
 def setup_dispatcher(dp):
@@ -10,4 +11,5 @@ def setup_dispatcher(dp):
     dp.add_handler(strong_message_handler)
     dp.add_handler(lower_message_handler)
     dp.add_handler(regex_message_handler)
+    dp.add_handler(get_photo_handler)
     dp.add_handler(any_message_handler)
