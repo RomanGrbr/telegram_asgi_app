@@ -2,14 +2,11 @@ import logging
 import os
 import sys
 
-import uvicorn
-from pyngrok import ngrok
-
 from core.application import ASGIApplication, JSONResponse
 from core.bot import BotBilder
 from core.updater import Update
-from core.settings import HOST, NGROK_TOKEN, PORT, BOT_TOKEN
-from core.handlers.dispatcher import setup_dispatcher
+from core.settings import BOT_TOKEN
+from handlers.dispatcher import setup_dispatcher
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 

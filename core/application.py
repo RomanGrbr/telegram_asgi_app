@@ -1,7 +1,6 @@
 import json
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-# from typing import Any
 
 
 @dataclass

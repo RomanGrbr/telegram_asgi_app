@@ -26,8 +26,7 @@ class Bot:
 
     """
 
-    def __init__(self, token: str) -> None:
-        self.token: str = token
+    token: str
 
     def set_webhook(self, url: str) -> None:
         """Регистрирует адрес вебхука в Telegram."""
@@ -88,7 +87,7 @@ class Bot:
         )
 
 
-@dataclass(slots=True)
+@dataclass
 class BotBilder:
     """Создает экземпляр бота и управляет обработчиками.
 
@@ -105,10 +104,11 @@ class BotBilder:
 
     """
 
+    token: str
     handlers_list: list = field(default_factory=list)
 
-    def __init__(self, token: str) -> None:
-        self.bot: Bot = Bot(token)
+    def __post_init__(self):
+        self.bot: Bot = Bot(self.token)
 
     def add_handler(self, handler: Handler) -> None:
         """Добавляет хендлер в обработчик."""

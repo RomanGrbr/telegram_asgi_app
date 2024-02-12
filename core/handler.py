@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Any
 
 from core.updater import Update
 
@@ -33,7 +34,7 @@ class Handler:
         """Проверить соответствует ли запрос триггеру."""
         return True
 
-    async def get_callback(self, update: Update, context: dict) -> Callable[...]:
+    async def get_callback(self, update: Update, context: dict) -> Any:
         """Вызвать назначенную функцию."""
         await self.callback(update, context)
 

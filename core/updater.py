@@ -1,5 +1,6 @@
+from typing import Any
+
 from core import parser
-from core.bot import Bot
 
 
 class Update:
@@ -30,12 +31,12 @@ class Update:
         'audio': parser.AudioMessage,
     }
 
-    def __init__(self, request: dict, bot: Bot) -> None:
-        self.bot: Bot = bot
+    def __init__(self, request: dict, bot) -> None:
+        self.bot = bot
         self.update_id: int = request.get('update_id')
         self.message = self.pars_message(request)
 
-    def pars_message(self, request: dict):
+    def pars_message(self, request: dict) -> Any:
         """Преобразует сообщение в класс python."""
         if request.get('callback_query'):
             return parser.IlineKeyboardMessage(
