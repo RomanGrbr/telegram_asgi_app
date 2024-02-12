@@ -58,8 +58,9 @@ class ASGIApplication:
         """
         request = Request(receive)
         if scope['method'] == 'POST':
-            if scope['path'] in self.post_urls:
-                body = await self.post_urls[scope['path']](await request())
+            if scope['path'].rstrip('/') in self.post_urls:
+                body = await self.post_urls[scope['path'].rstrip('/')](
+                    await request())
                 data, code = await body()
                 await self.request(send, data, code)
             else:
@@ -102,7 +103,7 @@ class ASGIApplication:
         """
         def _wrapper(func):
             """Добавляет декарируемую функцию в список обработки url адресов"""
-            self.post_urls[url] = func
+            self.post_urls[url.rstrip('/')] = func
         return _wrapper
 
 
