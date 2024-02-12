@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from typing import Any
+import re
 
 from core.updater import Update
 
@@ -62,6 +63,14 @@ class MessageStrongHandler(Handler):
     def respond(self, update: Update) -> bool:
         """Проверить соответствует ли запрос триггеру"""
         return update.message.text == self.trigger
+
+
+class MessageRegexHandler(Handler):
+    """Хендлер соответствия сообщению регулярному сообщению."""
+
+    def respond(self, update: Update) -> bool:
+        """Проверить соответствует ли запрос регулярному выражению триггера"""
+        return True if re.fullmatch(self.trigger, update.message.text) else False
 
 
 class CommandHandler(MessageStrongHandler):

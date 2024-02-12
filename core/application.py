@@ -58,9 +58,9 @@ class ASGIApplication:
         """
         request = Request(receive)
         if scope['method'] == 'POST':
-            if scope['path'].rstrip('/') in self.post_urls:
-                body = await self.post_urls[scope['path'].rstrip('/')](
-                    await request())
+            url_path = scope['path'].rstrip('/')
+            if url_path in self.post_urls:
+                body = await self.post_urls[url_path](await request())
                 data, code = await body()
                 await self.request(send, data, code)
             else:
