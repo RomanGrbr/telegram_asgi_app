@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Optional
 
+from core.application import Response
 from core import parser
 
 
@@ -45,21 +46,23 @@ class Update:
             if key in request.get('message'):
                 return value(request.get('message'))
 
-    # async def reply_text(
-    #         self,
-    #         text: str,
-    #         parse_mode: str = '',
-    #         disable_web_page_preview: bool = False,
-    #         reply_to_message_id: int = '',
-    #         reply_markup: Optional[dict | str] = None,
-    # ):
-    #     if reply_markup:
-    #         reply_markup = Response(content=reply_markup)
-    #     await self.bot.send_message(
-    #         text=text,
-    #         chat_id=self.data.message.chat.id,
-    #         parse_mode=parse_mode,
-    #         disable_web_page_preview=disable_web_page_preview,
-    #         reply_to_message_id=reply_to_message_id,
-    #         reply_markup=reply_markup,
-    #     )
+    async def reply_text(
+            self,
+            text: str,
+            parse_mode: str = 'HTML',
+            disable_web_page_preview: bool = False,
+            reply_to_message_id: int = '',
+            reply_markup=None,
+    ):
+        if reply_markup:
+            # TODO Что то не так
+            reply_markup = {'keyboard': reply_markup.keyboard}
+            reply_markup = await Response(content=reply_markup)()
+        await self.bot.send_message(
+            text=text,
+            chat_id=self.message.chat.id,
+            parse_mode=parse_mode,
+            disable_web_page_preview=disable_web_page_preview,
+            reply_to_message_id=reply_to_message_id,
+            reply_markup=reply_markup,
+        )

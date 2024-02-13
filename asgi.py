@@ -2,11 +2,13 @@ import logging
 import os
 import sys
 
+from pyngrok import ngrok
 from core.application import ASGIApplication, JSONResponse
 from core.bot import BotBilder
 from core.updater import Update
 from core.settings import BOT_TOKEN
-from handlers.dispatcher import setup_dispatcher
+from handlers_exam.dispatcher import setup_dispatcher
+from core.settings import NGROK_TOKEN, PORT
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -45,7 +47,7 @@ if __name__ == '__main__':
     # ngrok.set_auth_token(NGROK_TOKEN)
     # public_url = ngrok.connect(PORT, bind_tls=True).public_url
     # print(f'SET PUBLIC URL: {public_url}/webhook')
-    # app_bot.set_webhook(f'{public_url}/webhook')
+    # app_bot.bot.set_webhook(f'{public_url}/webhook')
     # run_server(HOST, PORT)
 
     os.system('uvicorn asgi:app --reload')

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import httpx
 
 from core.handler import Handler
-from core.settings import TELEGRAM_API, MEDIA_ROOT
+from core.settings import TELEGRAM_API, MEDIA_ROOT, TELEGRAM_TO
 from core.updater import Update
 
 
@@ -60,10 +60,19 @@ class Bot:
         #            f'&disable_web_page_preview={disable_web_page_preview}'
         #            f'&reply_to_message_id={reply_to_message_id}'
         #            f'&reply_markup={reply_markup}')
-        request = (f'{TELEGRAM_API}/bot{self.token}'
-                   f'/sendMessage?chat_id={chat_id}'
+        message = (f'{TELEGRAM_API}/bot{self.token}'
+                   f'/sendMessage?chat_id={TELEGRAM_TO}'
                    f'&text={text}')
-        httpx.get(request)
+        if parse_mode:
+            message += f'&parse_mode={parse_mode}'
+        if disable_web_page_preview:
+            message += f'&disable_web_page_preview={disable_web_page_preview}'
+        if reply_to_message_id:
+            message += f'&reply_to_message_id={reply_to_message_id}'
+        if reply_markup:
+            message += f'&reply_markup={reply_markup}'
+        print(f'Сообщение в телеграм отправлено: {message}')
+        # httpx.get(message)
 
     async def send_contact(self):
         """Отправляет контакт в Telegram."""
