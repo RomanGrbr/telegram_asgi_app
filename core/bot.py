@@ -71,8 +71,8 @@ class Bot:
             message += f'&reply_to_message_id={reply_to_message_id}'
         if reply_markup:
             message += f'&reply_markup={reply_markup}'
-        print(f'Сообщение в телеграм отправлено: {message}')
-        # httpx.get(message)
+        # print(f'Сообщение в телеграм отправлено: {message}')
+        httpx.get(message)
 
     async def send_contact(self):
         """Отправляет контакт в Telegram."""

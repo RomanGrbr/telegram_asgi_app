@@ -1,3 +1,4 @@
+import json
 from typing import Sequence, Union, List
 
 
@@ -15,7 +16,7 @@ class KeyboardButton:
         self.request_location = request_location
 
     def to_dict(self):
-        data = {}
+        data = dict()
         for key in self.__slots__:
             value = getattr(self, key, None)
             if value is not None:
@@ -49,8 +50,19 @@ class InlineKeyboardButton:
         self.switch_inline_query_current_chat = switch_inline_query_current_chat
         self.callback_game = callback_game
 
+    def to_dict(self):
+        data = dict()
+        for key in self.__slots__:
+            value = getattr(self, key, None)
+            if value is not None:
+                data[key] = value
+        return data
+
 
 class ReplyKeyboardMarkup:
+
+    __slots__ = 'keyboard', 'resize_keyboard', 'one_time_keyboard', 'selective'
+
     def __init__(
             self,
             keyboard: Sequence[Sequence[Union[str, KeyboardButton]]],
@@ -72,17 +84,25 @@ class ReplyKeyboardMarkup:
                     button_row.append(KeyboardButton(button))
             self.keyboard.append(button_row)
 
+    def to_dict(self) -> json:
+        data = dict()
+        for key in self.__slots__:
+            value = getattr(self, key, None)
+            if value is not None:
+                data[key] = value
+        return json.dumps(data)
+
 
 class InlineKeyboardMarkup:
     def __init__(self, inline_keyboard: List[List[InlineKeyboardButton]]):
         self.inline_keyboard = inline_keyboard
 
-    # def to_dict(self) -> JSONDict:
-    #     """See :meth:`telegram.TelegramObject.to_dict`."""
-    #     data = super().to_dict()
-    #
-    #     data['inline_keyboard'] = []
-    #     for inline_keyboard in self.inline_keyboard:
-    #         data['inline_keyboard'].append([x.to_dict() for x in inline_keyboard])
-    #
-    #     return data
+    def to_dict(self) -> json:
+        """See :meth:`telegram.TelegramObject.to_dict`."""
+        data = dict()
+
+        data['inline_keyboard'] = []
+        for inline_keyboard in self.inline_keyboard:
+            data['inline_keyboard'].append([x.to_dict() for x in inline_keyboard])
+
+        return json.dumps(data)

@@ -44,10 +44,10 @@ setup_dispatcher(app_bot)
 
 
 if __name__ == '__main__':
-    # ngrok.set_auth_token(NGROK_TOKEN)
-    # public_url = ngrok.connect(PORT, bind_tls=True).public_url
-    # print(f'SET PUBLIC URL: {public_url}/webhook')
-    # app_bot.bot.set_webhook(f'{public_url}/webhook')
+    ngrok.set_auth_token(NGROK_TOKEN)
+    public_url = ngrok.connect(PORT, bind_tls=True).public_url
+    print(f'SET PUBLIC URL: {public_url}/webhook')
+    app_bot.bot.set_webhook(f'{public_url}/webhook')
     # run_server(HOST, PORT)
 
     os.system('uvicorn asgi:app --reload')

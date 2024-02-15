@@ -1,6 +1,6 @@
-from typing import Any, Optional
+import json
+from typing import Any
 
-from core.application import Response
 from core import parser
 
 
@@ -55,9 +55,7 @@ class Update:
             reply_markup=None,
     ):
         if reply_markup:
-            # TODO Что то не так
-            reply_markup = {'keyboard': reply_markup.keyboard}
-            reply_markup = await Response(content=reply_markup)()
+            reply_markup = reply_markup.to_dict()
         await self.bot.send_message(
             text=text,
             chat_id=self.message.chat.id,
